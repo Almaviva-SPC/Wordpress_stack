@@ -1,0 +1,53 @@
+ - name: installazione di wordpress
+   hosts: app
+   tasks:
+
+     - name: installazione apache e vari pacchetti utili
+       yum:
+        state: latest
+        name: "{{ item }}"
+       with_items:
+         - httpd
+         - wget
+         - bash-completion
+         - telnet
+         - unzip
+         - mod_ssl
+
+     - name: creazione cartella root per wordpress
+       file:
+        path: "/var/www/{{wordpress_dir}}"
+        state: directory
+        owner: apache
+        group: apache
+        mode: 2775
+
+     - name: copia file di configurazione di apache
+       template:
+           src: wordpress.j2
+           dest: "/etc/httpd/conf.d/{{nome_file_conf}}.conf"
+
+
+
+
+ - name: installazione di apache sul frontend
+   hosts: web
+   tasks:
+
+     - name: installazione apache e vari pacchetti utili
+       yum:
+        state: latest
+        name: "{{ item }}"
+       with_items:
+         - httpd
+         - wget
+         - bash-completion
+         - telnet
+         - unzip
+         - mod_ssl
+
+
+     - name: copia file di configurazione di apache
+       template:
+           src: apache_web.j2
+           dest: "/etc/httpd/conf.d/{{nome_file_conf}}.conf"
