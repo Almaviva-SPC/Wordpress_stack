@@ -24,7 +24,7 @@
 
      - name: copia file di configurazione di apache
        template:
-           src: wordpress.j2
+           src: wordpress_app.conf.j2
            dest: "/etc/httpd/conf.d/{{nome_file_conf}}.conf"
 
 
@@ -49,5 +49,5 @@
 
      - name: copia file di configurazione di apache
        template:
-           src: apache_web.j2
+           src: wordpress_web.conf.j2
            dest: "/etc/httpd/conf.d/{{nome_file_conf}}.conf"
