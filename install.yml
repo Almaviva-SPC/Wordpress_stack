@@ -26,7 +26,12 @@
        template:
            src: wordpress_app.conf.j2
            dest: "/etc/httpd/conf.d/{{nome_file_conf}}.conf"
-
+ 
+     - name: creazione cartella root per wordpress
+       unarchive:
+           src: files/wordpress.tar
+           dest: "/var/www/{{wordpress_dir}}"
+           
 
 
 
