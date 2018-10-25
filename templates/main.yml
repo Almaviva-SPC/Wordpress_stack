@@ -9,15 +9,19 @@ ProxyRequests off
 
 <Proxy balancer://wordpress>
         Header add Set-Cookie "WORDID=.%{BALANCER_WORKER_ROUTE}e; path=/" env=BALANCER_ROUTE_CHANGED
-        BalancerMember http://ansible_hostname.ansible_default_ipv4.address:80 route=1
+        BalancerMember http://{{hostvars[groups.application.0].ansible_default_ipv4.address}}:80 route=1
         #BalancerMember http://xxxxxx:10080 route=1 hcmethod=HEAD hcexpr=ok234 hcinterval=10
-        BalancerMember http://ansible_hostname.ansible_default_ipv4.address:80 route=2
+        BalancerMember http://{{hostvars[groups.application.1].ansible_default_ipv4.address}}:80 route=2
         #BalancerMember http://xxxxxx:10080 route=2 hcmethod=HEAD hcexpr=ok234 hcinterval=10
         ProxySet stickysession=WORDID
         ProxyPreserveHost On
         Order deny,allow
         Allow from all
 </Proxy>
+
+ErrorLog  logs/{{wordpress_dir}}_error_ssl_log
+CustomLog logs/{{wordpress_dir}}_access_ssl_log common
+CustomLog logs/{{wordpress_dir}}_access_ssl_xfor_log proxy
 
 <Location />
 Order allow,deny
@@ -56,9 +60,9 @@ SSLProxyEngine on
 ServerName {{nome_virtualhost}}
 
 SSLProtocol All -SSLv2 -SSLv3
-#SSLCertificateFile /etc/httpd/ssl/{{nome_certificato}}.crt
-#SSLCertificateChainFile /etc/httpd/ssl/chain.crt
-#SSLCertificateKeyFile /etc/httpd/ssl/{{nome_certificato}}.key
+SSLCertificateFile /etc/httpd/ssl/{{nome_certificato}}.crt
+SSLCertificateChainFile /etc/httpd/ssl/chain.crt
+SSLCertificateKeyFile /etc/httpd/ssl/{{nome_certificato}}.key
 
 SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:!ECDHE-RSA-AES128-SHA:DHE-RSA-AES128-GCM-SHA256:AES256+EDH:!ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:!ECDHE-RSA-AES256-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:!ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4
 SSLHonorCipherOrder on
@@ -70,9 +74,9 @@ Header always append X-Frame-Options SAMEORIGIN
 
 <Proxy balancer://wordpress>
         Header add Set-Cookie "WORDID=.%{BALANCER_WORKER_ROUTE}e; path=/" env=BALANCER_ROUTE_CHANGED
-        BalancerMember http://ip:80 route=1
+        BalancerMember http://{{hostvars[groups.application.0].ansible_default_ipv4.address}}:80 route=1
         #BalancerMember http://xxxxxx:10080 route=1 hcmethod=HEAD hcexpr=ok234 hcinterval=10
-        BalancerMember http://ip:80 route=2
+        BalancerMember http://{{hostvars[groups.application.1].ansible_default_ipv4.address}}:80 route=2
         #BalancerMember http://xxxxxx:10080 route=2 hcmethod=HEAD hcexpr=ok234 hcinterval=10
         ProxySet stickysession=WORDID
         ProxyPreserveHost On
