@@ -37,7 +37,11 @@
            src: files/wordpress.tar
            dest: "/var/www/{{wordpress_dir}}"
            
-
+     - name: start e attivazione del servizio
+       service:
+           name: httpd
+           state: started
+           enabled: true
 
 
  - name: installazione di apache sul frontend
@@ -65,3 +69,9 @@
        template:
            src: wordpress_web.conf.j2
            dest: "/etc/httpd/conf.d/{{nome_file_conf}}_web.conf"
+
+     - name: start e attivazione del servizio
+       service:
+           name: httpd
+           state: started
+           enabled: true
