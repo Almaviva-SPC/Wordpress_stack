@@ -1,6 +1,9 @@
 <VirtualHost *:80>
 
 ServerName {{nome_virtualhost}}
+
+DocumentRoot /var/www/{{wordpress_dir}}
+
 ProxyPreserveHost   On
 RewriteEngine       On
 ProxyRequests off
@@ -10,33 +13,25 @@ ErrorLog  logs/{{wordpress_dir}}_error_ssl_log
 CustomLog logs/{{wordpress_dir}}_access_ssl_log common
 CustomLog logs/{{wordpress_dir}}_access_ssl_xfor_log proxy
 
+      <Directory /var/www/{{wordpress_dir}}>
+          Options +Indexes +FollowSymLinks +ExecCGI
+          AllowOverride All
+          Order deny,allow
+          Allow from all
+          Require all granted
+      </Directory>
+
 </VirtualHost>
-
-
-SSLPassPhraseDialog  builtin
-SSLSessionCache         shmcb:/var/cache/mod_ssl/scache(512000)
-SSLSessionCacheTimeout  300
-SSLRandomSeed startup file:/dev/urandom  256
-SSLRandomSeed connect builtin
-SSLRandomSeed startup file:/dev/random  512
-SSLRandomSeed connect file:/dev/random  512
-SSLRandomSeed connect file:/dev/urandom 512
-SSLCryptoDevice builtin
-SSLCryptoDevice ubsec
 
 
 <VirtualHost *:443>
 
-ProxyPreserveHost On
-RemoteIPHeader X-Forwarded-For
-RemoteIPInternalProxy 127.0.0.1
-SSLEngine on
-SSLProxyEngine on
-
-#Header always set Strict-Transport-Security "max-age=63072000; includeSubdomains; preload"
-
 ServerName {{nome_virtualhost}}
 
+DocumentRoot /var/www/{{wordpress_dir}}
+
+SSLEngine on
+SSLProxyEngine on
 SSLProtocol All -SSLv2 -SSLv3
 SSLCertificateFile /etc/httpd/ssl/{{nome_certificato}}.crt
 SSLCertificateChainFile /etc/httpd/ssl/chain.crt
@@ -45,15 +40,18 @@ SSLCertificateKeyFile /etc/httpd/ssl/{{nome_certificato}}.key
 SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:!ECDHE-RSA-AES128-SHA:DHE-RSA-AES128-GCM-SHA256:AES256+EDH:!ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:!ECDHE-RSA-AES256-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:!ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4
 SSLHonorCipherOrder on
 
-Header edit Set-Cookie ^(.*)$ $1;HttpOnly;Secure
-Header edit Set-Cookie ^(JSESSIONID.*)$ $1;SameSite=Strict
-Header set X-XSS-Protection "1; mode=block"
-Header always append X-Frame-Options SAMEORIGIN
-
 ErrorLog  logs/{{wordpress_dir}}_error_ssl_log
 CustomLog logs/{{wordpress_dir}}_access_ssl_log common
 CustomLog logs/{{wordpress_dir}}_access_ssl_xfor_log proxy
     
+RewriteEngine on
 
+      <Directory /var/www/{{wordpress_dir}}>
+          Options +Indexes +FollowSymLinks +ExecCGI
+          AllowOverride All
+          Order deny,allow
+          Allow from all
+          Require all granted
+      </Directory>
 
 </VirtualHost>
