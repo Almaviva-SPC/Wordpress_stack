@@ -30,7 +30,7 @@
      - name: copia file di configurazione dell'apache di wordpress
        template:
            src: wordpress_app.conf.j2
-           dest: "/etc/httpd/conf.d/{{nome_file_conf}}.conf"
+           dest: "/etc/httpd/conf.d/{{nome_file_conf}}_app.conf"
  
      - name: spacchettamento dei file di wordpress
        unarchive:
@@ -64,4 +64,4 @@
      - name: copia file di configurazione del front end di wordpress
        template:
            src: wordpress_web.conf.j2
-           dest: "/etc/httpd/conf.d/{{nome_file_conf}}.conf"
+           dest: "/etc/httpd/conf.d/{{nome_file_conf}}_web.conf"
