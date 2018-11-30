@@ -1,11 +1,16 @@
 <VirtualHost *:80>
 
 ServerName {{nome_virtualhost}}
+
+RemoteIPHeader X-Forwarded-For
 ProxyPreserveHost   On
 RewriteEngine       On
 ProxyRequests off
 #LogLevel debug
 
+ErrorLog  logs/{{wordpress_dir}}_error_ssl_log
+CustomLog logs/{{wordpress_dir}}_access_ssl_log common
+CustomLog logs/{{wordpress_dir}}_access_ssl_xfor_log proxy
 
 <Proxy balancer://wordpress>
         Header add Set-Cookie "WORDID=.%{BALANCER_WORKER_ROUTE}e; path=/" env=BALANCER_ROUTE_CHANGED
@@ -19,17 +24,13 @@ ProxyRequests off
         Allow from all
 </Proxy>
 
-ErrorLog  logs/{{wordpress_dir}}_error_ssl_log
-CustomLog logs/{{wordpress_dir}}_access_ssl_log common
-CustomLog logs/{{wordpress_dir}}_access_ssl_xfor_log proxy
-
 <Location />
-Order allow,deny
-Allow from all
-#RewriteEngine On
-#RewriteCond %{HTTPS} off
-#RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
-ProxyPass  balancer://wordpress/
+   Order allow,deny
+   Allow from all
+   #RewriteEngine On
+   #RewriteCond %{HTTPS} off
+   #RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+   ProxyPass  balancer://wordpress/
 </Location>
 
 </VirtualHost>
@@ -40,25 +41,24 @@ SSLSessionCache         shmcb:/var/cache/mod_ssl/scache(512000)
 SSLSessionCacheTimeout  300
 SSLRandomSeed startup file:/dev/urandom  256
 SSLRandomSeed connect builtin
-SSLRandomSeed startup file:/dev/random  512
-SSLRandomSeed connect file:/dev/random  512
-SSLRandomSeed connect file:/dev/urandom 512
+#SSLRandomSeed startup file:/dev/random  512
+#SSLRandomSeed connect file:/dev/random  512
+#SSLRandomSeed connect file:/dev/urandom 512
 SSLCryptoDevice builtin
-SSLCryptoDevice ubsec
+#SSLCryptoDevice ubsec
 
 
 <VirtualHost *:443>
 
-ProxyPreserveHost On
-RemoteIPHeader X-Forwarded-For
-RemoteIPInternalProxy 127.0.0.1
-SSLEngine on
-SSLProxyEngine on
-
-#Header always set Strict-Transport-Security "max-age=63072000; includeSubdomains; preload"
-
 ServerName {{nome_virtualhost}}
 
+ProxyPreserveHost On
+RequestHeader set X-Forwarded-Proto "https"
+#RemoteIPHeader X-Forwarded-For
+RemoteIPInternalProxy 127.0.0.1
+
+SSLEngine on
+SSLProxyEngine on
 SSLProtocol All -SSLv2 -SSLv3
 SSLCertificateFile /etc/httpd/ssl/{{nome_certificato}}.crt
 SSLCertificateChainFile /etc/httpd/ssl/chain.crt
@@ -89,9 +89,9 @@ CustomLog logs/{{wordpress_dir}}_access_ssl_log common
 CustomLog logs/{{wordpress_dir}}_access_ssl_xfor_log proxy
     
 <Location />
-Order allow,deny
-Allow from all
-ProxyPass  balancer://wordpress/
+  Order allow,deny
+  Allow from all
+  ProxyPass  balancer://wordpress/
 </Location>
 
 </VirtualHost>
