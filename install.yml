@@ -2,7 +2,7 @@
    hosts: app
    tasks:
 
-     - name: installazione apache e vari pacchetti utili
+     - name: installazione apache, epel e vari pacchetti utili
        yum:
         state: latest
         name: "{{ item }}"
@@ -13,6 +13,12 @@
          - telnet
          - unzip
          - mod_ssl
+         - epel-release.noarch
+     
+     - name: installazione php
+       yum:
+        state: latest
+        name: php  
 
      - name: creazione cartella root per wordpress
        file:
@@ -48,7 +54,7 @@
    hosts: web
    tasks:
 
-     - name: installazione apache e vari pacchetti utili
+     - name: installazione apache, epel e vari pacchetti utili
        yum:
         state: latest
         name: "{{ item }}"
@@ -59,6 +65,12 @@
          - telnet
          - unzip
          - mod_ssl
+         - epel-release.noarch
+         
+     - name: installazione php
+       yum:
+        state: latest
+        name: php  
 
      - name: copia file di configurazione di default di apache
        template:
